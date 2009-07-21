@@ -16,6 +16,14 @@ module SAXualReplication
       return ret
     end
 
+    def parse_multiple(xml, tag)
+      klass = collection_class(tag)
+      ret = klass.parse(xml)
+      puts ret.rows
+      ret.rows.each{|o| o.validate}
+      ret.rows
+    end
+
     def columns_with_types
       column_names.each{|c| yield c, data_class(c) || String}
     end
@@ -37,6 +45,14 @@ module SAXualReplication
       klass.property(:updated_at, DateTime, :nullable => false)
       columns_with_types { |n, t| klass.property(n, t) }
       klass
+    end
+
+    def collection_class(tag)
+      klass = self
+      Class.new do
+        include SAXualReplication
+        elements tag, :as => :rows, :class => klass
+      end
     end
 
     def sql(rows)
@@ -86,8 +102,6 @@ module SAXualReplication
     self.class.instance_variable_get('@sax_config').instance_variable_get('@top_level_elements').select{ |e| e.required? }.each do |element|
       raise MissingElementError.new("Missing the required attribute " + element.name) unless send(element.instance_variable_get('@as'))
     end
-
-    #send(self.class.table_name).each{ |o| o.validate } if self.class.table_name
   end
 
   def collection

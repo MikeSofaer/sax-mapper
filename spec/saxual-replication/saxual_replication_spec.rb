@@ -31,6 +31,9 @@ describe "SAXMachine" do
       before(:each) do
         @document = @klass.parse("<xml><title>Someone's Cat</title><written_on>March 5 2007</written_on></xml>")
       end
+      after(:each) do
+        @adapter.execute "delete from documents"
+      end
       it "should generate the correct bind values for the specified columns" do
         @klass.column_names.should =~ [:title, :written_on]
         array = []
@@ -50,11 +53,22 @@ describe "SAXMachine" do
       it "should generate the correct SQL from a class call" do
         @klass.sql([@document,@document]).should == "INSERT INTO documents(title, written_on, created_at, updated_at) VALUES (?,?,?,?),(?,?,?,?)"
       end
-      it "should be able to save a record" do
-        document = @klass.parse("<title>Hello, Everyone!</title>")
-        @klass.save [@document,@document]
-        @klass.datamapper_class.all[0].title.should == "Someone's Cat"
-        @klass.datamapper_class.all[1].title.should == "Someone's Cat"
+      describe "multiple records" do
+        before(:each) do
+          @xml = "<xml><document><title>Hello, Everyone!</title></document><document><title>Someone's Cat</title></document></xml>"
+        end
+
+        it "should be possible to parse two records" do
+          rows = @klass.parse_multiple(@xml, :document)
+          rows.size.should == 2
+        end
+
+        it "should be able to save two records" do
+          documents = @klass.parse_multiple(@xml, :document)
+          @klass.save documents
+          @klass.datamapper_class.all[0].title.should == "Hello, Everyone!"
+          @klass.datamapper_class.all[1].title.should == "Someone's Cat"
+        end
       end
     end
   end
