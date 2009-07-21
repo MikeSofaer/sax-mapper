@@ -1,4 +1,4 @@
-require '../sax-machine/lib/sax-machine'
+require 'sax-machine'
 require 'dm-core'
 
 module SAXualReplication
