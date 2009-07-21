@@ -1,12 +1,13 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe "SAXMachine" do
+describe "SAXualReplication" do
   before :each do
     @klass = Class.new do
       include SAXualReplication
       element :title
       element :written_on, :class => DateTime
       table "documents"
+      tag :document
     end
   end
   it "should function as a SAXMachine class" do
@@ -59,12 +60,12 @@ describe "SAXMachine" do
         end
 
         it "should be possible to parse two records" do
-          rows = @klass.parse_multiple(@xml, :document)
+          rows = @klass.parse_multiple(@xml)
           rows.size.should == 2
         end
 
         it "should be able to save two records" do
-          documents = @klass.parse_multiple(@xml, :document)
+          documents = @klass.parse_multiple(@xml)
           @klass.save documents
           @klass.datamapper_class.all[0].title.should == "Hello, Everyone!"
           @klass.datamapper_class.all[1].title.should == "Someone's Cat"

@@ -16,10 +16,9 @@ module SAXualReplication
       return ret
     end
 
-    def parse_multiple(xml, tag)
-      klass = collection_class(tag)
+    def parse_multiple(xml)
+      klass = collection_class
       ret = klass.parse(xml)
-      puts ret.rows
       ret.rows.each{|o| o.validate}
       ret.rows
     end
@@ -36,6 +35,10 @@ module SAXualReplication
       @table_name = value
     end
 
+    def tag(value)
+      @tag = value
+    end
+
     def datamapper_class
       klass = self.dup
       klass.send(:include, DataMapper::Resource)
@@ -47,8 +50,9 @@ module SAXualReplication
       klass
     end
 
-    def collection_class(tag)
+    def collection_class
       klass = self
+      tag = @tag
       Class.new do
         include SAXualReplication
         elements tag, :as => :rows, :class => klass
@@ -73,42 +77,16 @@ module SAXualReplication
   end
 
 
-  def sql
-    columns = self.class.model.columns
-    ret = "INSERT INTO #{self.class.table_name} (#{columns.join(', ')}) values "
-    values = send(self.class.table_name).map{|o| o.sql_values_string(columns)}
-    update_columns = columns - [:sourced_id, :id, :created_at]
-    update_keys = update_columns.map{|c| c.to_s + '=VALUES(' + c.to_s + ')'}
-    ret + values.join(', ') + " ON DUPLICATE KEY UPDATE " + update_keys.join(', ')
-  end
+ #+ " ON DUPLICATE KEY UPDATE " + update_keys.join(', ')
 
   def add_bind_values!(column_names, bind_array, datetime)
     column_names.each{|c| bind_array << self.send(c)}
     bind_array << datetime << datetime
   end
 
-  def save!
-    return save_with(self.class.container.constantize) if self.class.container
-    self.class.connection.execute sql
-  end
-
-  def save_with(container_class)
-    c = container_class.new
-    c.collection = [self]
-    c.save!
-  end
-
   def validate
     self.class.instance_variable_get('@sax_config').instance_variable_get('@top_level_elements').select{ |e| e.required? }.each do |element|
       raise MissingElementError.new("Missing the required attribute " + element.name) unless send(element.instance_variable_get('@as'))
     end
-  end
-
-  def collection
-    send(table_name)
-  end
-
-  def collection=(values)
-    send(table_name + '=', values)
   end
 end
