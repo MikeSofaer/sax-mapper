@@ -46,7 +46,7 @@ module SAXualReplication
       klass.property(:id, DataMapper::Types::Serial)
       klass.property(:created_at, DateTime, :nullable => false)
       klass.property(:updated_at, DateTime, :nullable => false)
-      columns_with_types { |n, t| klass.property(n, t) }
+      columns_with_types { |n, t| klass.property(n, t, :field => n.to_s) }
       klass
     end
 
