@@ -39,6 +39,10 @@ module SAXualReplication
       @tag = value
     end
 
+    def key_column(value)
+      @key_column = value
+    end
+
     def datamapper_class
       klass = self.dup
       klass.send(:include, DataMapper::Resource)
@@ -60,8 +64,10 @@ module SAXualReplication
     end
 
     def sql(rows)
-      "INSERT INTO "+ @table_name + "(" + column_names.join(', ') + ", created_at, updated_at) VALUES " +
+      _sql = "INSERT INTO "+ @table_name + "(" + column_names.join(', ') + ", created_at, updated_at) VALUES " +
         ([("(" + (["?"] * (column_names.size + 2)).join(',') + ")")] * rows.size).join(',')
+      _sql << duplicate_key_clause if @key_column
+      _sql
     end
     def bind_values(rows)
       names = column_names
@@ -70,14 +76,17 @@ module SAXualReplication
       rows.each{|row| row.add_bind_values!(names, array, datetime)}
       array
     end
+    def duplicate_key_clause
+      " ON DUPLICATE KEY UPDATE " + (column_names - [:created_at, @key_column]).inject("") do
+        |string, column|
+        string + column.to_s + "=VALUES(" + column.to_s + ") "
+      end
+    end
 
     def save(rows)
       connection.execute sql(rows), *bind_values(rows)
     end
   end
-
-
- #+ " ON DUPLICATE KEY UPDATE " + update_keys.join(', ')
 
   def add_bind_values!(column_names, bind_array, datetime)
     column_names.each{|c| bind_array << self.send(c)}

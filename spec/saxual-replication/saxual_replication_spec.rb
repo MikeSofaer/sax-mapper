@@ -71,6 +71,19 @@ describe "SAXualReplication" do
           @klass.datamapper_class.all[1].title.should == "Someone's Cat"
         end
       end
+      describe "replication" do
+        it "should update fields on rows with a repeated primary key" do
+          @klass.key_column :written_on
+          @adapter.execute "create unique index key_column on documents(written_on)"
+          t = DateTime.now.to_s
+          xml1 = "<document><title>Hello, Everyone!</title><written_on>#{t}</written_on></document>"
+          xml2 = "<document><title>Someone's Cat</title><written_on>#{t}</written_on></document>"
+          @klass.save [@klass.parse(xml1)]
+          @klass.save [@klass.parse(xml2)]
+          @klass.datamapper_class.all.size.should == 1
+          @klass.datamapper_class.all[0].title.should == "Someone's Cat"
+        end
+      end
     end
   end
 end
