@@ -1,0 +1,41 @@
+SAXual Replication is a database persistence extension to SAXMachine.
+It uses DataObjects/MySQL going in, and DataMapper coming back out.
+
+SAXual Replication supports getting multiple instances of an object without an
+explicit wrapper class, just by specifying the wrapper tag, using parse_multiple.
+
+You can also set a column as a remote primary key, and it will overwrite rather
+than add records where that key is a duplicate (you need to separately set
+the column to be have a unique index, since it uses ON DUPLICATE KEY UPDATE)
+
+Finally, you can mark fields as required, and it will raise an expection if the
+XML is missing that field.
+
+Many thanks to Paul Dix, who helped me integrate this with SAXMachine, and Dan
+Kubb, who helped me with DataObjects and gave hints on memory footprint.
+All bugs and memory leaks are mine, though!
+
+Example:
+
+class Person
+  include SAXualReplication
+  element :sourced_id, :required => true
+  element :given, :as => :given_name, :required => true
+  element :family, :as => :family_name, :required => true
+  element :email, :required => true
+
+  table "people"
+  tag :person
+  key_column :sourced_id
+end
+
+Person.parse_multiple(xml) will return an array of Person objects, found inside
+<person></person> tags.  You can save them to the DB with Person.save(array)
+
+Multiple values with the same sourced_id will replace each other in the DB.
+
+Query batching is not built in, you have to slice the array.
+
+Enjoy!
+
+SAXual replication is written by Michael Sofaer, July 2009, and MIT licenced.
