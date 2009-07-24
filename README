@@ -17,6 +17,7 @@ All bugs and memory leaks are mine, though!
 
 Example:
 
+require 'saxual-replication'
 class Person
   include SAXualReplication
   element :sourced_id, :required => true
@@ -35,6 +36,8 @@ Person.parse_multiple(xml) will return an array of Person objects, found inside
 Multiple values with the same sourced_id will replace each other in the DB.
 
 Query batching is not built in, you have to slice the array.
+
+gem install MikeSofaer-saxual-replication
 
 Enjoy!
 
