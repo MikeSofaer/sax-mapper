@@ -86,7 +86,10 @@ module SAXualReplication
   end
 
   def add_bind_values!(column_names, bind_array, datetime)
-    column_names.each{|c| bind_array << self.send(c)}
+    column_names.each do |c|
+      val = self.send(c)
+      bind_array << ((self.class.data_class(c) == DateTime && val) ? (DateTime.parse(val)) : val)
+    end
     bind_array << datetime << datetime
   end
 
