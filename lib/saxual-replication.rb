@@ -77,10 +77,7 @@ module SAXualReplication
       array
     end
     def duplicate_key_clause
-      " ON DUPLICATE KEY UPDATE " + (column_names - [:created_at, @key_column]).inject("") do
-        |string, column|
-        string + column.to_s + "=VALUES(" + column.to_s + ") "
-      end
+      " ON DUPLICATE KEY UPDATE " + (column_names - [:created_at, @key_column]).map {|c| c.to_s + "=VALUES(" + c.to_s + ")"}.join(', ')
     end
 
     def save(rows)
