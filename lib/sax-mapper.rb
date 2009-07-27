@@ -1,7 +1,7 @@
 require 'sax-machine'
 require 'dm-core'
 
-module SAXualReplication
+module SaxMapper
   class MissingElementError < Exception; end
 
   def self.included(base)
@@ -58,7 +58,7 @@ module SAXualReplication
       klass = self
       tag = @tag
       Class.new do
-        include SAXualReplication
+        include SaxMapper
         elements tag, :as => :rows, :class => klass
       end
     end

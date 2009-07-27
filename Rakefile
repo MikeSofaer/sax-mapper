@@ -1,6 +1,6 @@
 require "spec"
 require "spec/rake/spectask"
-require 'lib/saxual-replication.rb'
+require 'lib/sax-mapper.rb'
 
 Spec::Rake::SpecTask.new do |t|
   t.spec_opts = ['--options', "\"#{File.dirname(__FILE__)}/spec/spec.opts\""]
@@ -9,6 +9,6 @@ end
 
 task :install do
   rm_rf "*.gem"
-  puts `gem build saxual-replication.gemspec`
-  puts `sudo gem install saxual-replication-#{SAXualReplication::VERSION}.gem`
+  puts `gem build sax-mapper.gemspec`
+  puts `sudo gem install sax-mapper-#{SaxMapper::VERSION}.gem`
 end

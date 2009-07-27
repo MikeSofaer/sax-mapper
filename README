@@ -1,4 +1,4 @@
-SAXual Replication is a database persistence extension to SAXMachine.
+SAXMapper is a database persistence extension to SAXMachine.
 It uses DataObjects/MySQL going in, and DataMapper coming back out.
 
 SAXual Replication supports getting multiple instances of an object without an
@@ -17,9 +17,9 @@ All bugs and memory leaks are mine, though!
 
 Example:
 
-require 'saxual-replication'
+require 'sax-mapper'
 class Person
-  include SAXualReplication
+  include SaxMapper
   element :sourced_id, :required => true
   element :given, :as => :given_name, :required => true
   element :family, :as => :family_name, :required => true
@@ -37,8 +37,8 @@ Multiple values with the same sourced_id will replace each other in the DB.
 
 Query batching is not built in, you have to slice the array.
 
-gem install MikeSofaer-saxual-replication
+gem install MikeSofaer-sax-mapper
 
 Enjoy!
 
-SAXual replication is written by Michael Sofaer, July 2009, and MIT licenced.
+SAXMapper is written by Michael Sofaer, July 2009, and MIT licenced.

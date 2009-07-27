@@ -1,9 +1,9 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe "SAXualReplication" do
+describe "SaxMapper" do
   before :each do
     @klass = Class.new do
-      include SAXualReplication
+      include SaxMapper
       element :title
       element :written_on, :class => DateTime
       table "documents"
