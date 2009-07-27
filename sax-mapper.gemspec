@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
     "README", "Rakefile",
     "spec/spec.opts", 
     "spec/spec_helper.rb", 
-    "spec/sax-mapper/saxual_replication_spec.rb"]
+    "spec/sax-mapper/sax-mapper_spec.rb"]
   s.homepage = %q{http://github.com/MikeSofaer/sax-mapper}
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.1}
