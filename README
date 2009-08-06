@@ -8,6 +8,8 @@ You can also set a column as a remote primary key, and it will overwrite rather
 than add records where that key is a duplicate (you need to separately set
 the column to be have a unique index, since it uses ON DUPLICATE KEY UPDATE)
 
+You can specify a batch size to save in, and whether to wrap the save in a transaction.
+
 Finally, you can mark fields as required, and it will raise an expection if the
 XML is missing that field.
 
@@ -33,9 +35,9 @@ end
 Person.parse_multiple(xml) will return an array of Person objects, found inside
 <person></person> tags.  You can save them to the DB with Person.save(array)
 
-Multiple values with the same sourced_id will replace each other in the DB.
+Person.save(array, :batch_size => 3000, :transaction => true) will try to save them in batches of 3000, and roll everything back if any save fails.
 
-Query batching is not built in, you have to slice the array.
+Multiple values with the same sourced_id will replace each other in the DB.
 
 gem install MikeSofaer-sax-mapper
 
