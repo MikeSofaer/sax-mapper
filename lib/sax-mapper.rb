@@ -82,6 +82,7 @@ module SaxMapper
     end
 
     def save(rows, options = {})
+      connection.execute "BEGIN" if options[:transaction]
       if options[:batch_size]
         rows.each_slice(options[:batch_size]) do |batch|
           connection.execute sql(batch), *bind_values(batch)
@@ -89,6 +90,10 @@ module SaxMapper
       else
         connection.execute sql(rows), *bind_values(rows)
       end
+      connection.execute "COMMIT" if options[:transaction]
+    rescue Exception => e
+      connection.execute "ROLLBACK" if options[:transaction]
+      raise e
     end
   end
 

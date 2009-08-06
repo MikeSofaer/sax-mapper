@@ -81,9 +81,19 @@ describe "SaxMapper" do
           @klass.datamapper_class.all[0].title.should == "Hello, Everyone!"
           @klass.datamapper_class.all[1].title.should == "Someone's Cat"
         end
+        it "should do the chunks in a transaction if asked" do
+          t = DateTime.now.to_s
+          @adapter.execute "create unique index key_column on documents(written_on)"
+          xml= "<xml><document><title>Hello, Everyone!</title><written_on>#{t}</written_on></document><document><title>Someone's Cat</title><written_on>#{t}</written_on></document></xml>"
+          documents = @klass.parse_multiple xml
+          go = lambda{@klass.save documents, :batch_size => 1, :transaction => true}
+          go.should raise_error
+          @klass.datamapper_class.all.size.should == 0
+        end
       end
       describe "replication" do
         it "should update fields on rows with a repeated primary key" do
+          DataMapper.auto_migrate!
           @klass.key_column :written_on
           @adapter.execute "create unique index key_column on documents(written_on)"
           t = DateTime.now.to_s
