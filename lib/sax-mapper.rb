@@ -1,5 +1,6 @@
 require 'sax-machine'
 require 'dm-core'
+require 'enumerator'
 
 module SaxMapper
   class MissingElementError < Exception; end
@@ -80,8 +81,14 @@ module SaxMapper
       " ON DUPLICATE KEY UPDATE " + (column_names - [:created_at, @key_column]).map {|c| c.to_s + "=VALUES(" + c.to_s + ")"}.join(', ')
     end
 
-    def save(rows)
-      connection.execute sql(rows), *bind_values(rows)
+    def save(rows, options = {})
+      if options[:batch_size]
+        rows.each_slice(options[:batch_size]) do |batch|
+          connection.execute sql(batch), *bind_values(batch)
+        end
+      else
+        connection.execute sql(rows), *bind_values(rows)
+      end
     end
   end
 

@@ -70,6 +70,17 @@ describe "SaxMapper" do
           @klass.datamapper_class.all[0].title.should == "Hello, Everyone!"
           @klass.datamapper_class.all[1].title.should == "Someone's Cat"
         end
+        it "should support chunking into multiple queries" do
+          documents = @klass.parse_multiple(@xml)
+          @adapter.should_receive(:execute).exactly(3).times
+          @klass.save documents, :batch_size => 1
+        end
+        it "should work when chunking" do
+          documents = @klass.parse_multiple(@xml)
+          @klass.save documents
+          @klass.datamapper_class.all[0].title.should == "Hello, Everyone!"
+          @klass.datamapper_class.all[1].title.should == "Someone's Cat"
+        end
       end
       describe "replication" do
         it "should update fields on rows with a repeated primary key" do
